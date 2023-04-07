@@ -27,6 +27,10 @@ const player = mongoose.model('player',{
         type: String,
         required: true
     },
+    studentid:{
+        type: Number,
+        required: true
+    },
     gender:{
         type: String,
         required: true,

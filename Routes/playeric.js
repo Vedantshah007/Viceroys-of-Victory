@@ -6,47 +6,9 @@ const cprofile = require('../model/Cricket/profile');
 const cmatch = require('../model/Cricket/match');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const cors = require('cors');
 const auth = require('../Auth/playerauth')
 dotenv.config();
-router.use(cors());
-router.post('/player/login',(req,res)=>{
-    console.log("Login User")
-    let email = req.body.email;
-    let password = req.body.password;
-    player.findOne({email: email})
-    .then((v)=>{
-        // console.log("h")
-        if(v.password==password){
-            // console.log("h1")
-        let currToken = jwt.sign({"_id": v._id},'playertkn');
-        v.tokens = v.tokens.concat({token: currToken})
-        player.findByIdAndUpdate(v._id,{tokens: v.tokens}).then((v)=>{
-            // console.log("here")
-            return res.send({"message":"Login done!", "token":currToken});
-        }).catch((err)=>{
-            res.send({"message":"Login failed!"});
-        })
-         
-        }
-        else
-        res.send({"message":"Incorrect pwd"});
-    })
-    .catch((err)=>{
-        res.send({"message":"Db is down"});
-    })
-})
 
-router.get('/player/logout',auth,(req,res)=>{
-    console.log("here at logout")
-    player.findByIdAndUpdate(req.id,{tokens: []})
-    .then((v)=>{
-        res.send({"message":"Logout Done!"});
-    })
-    .catch((err)=>{
-        res.send({"message":"Logout failed!"})
-    })
-})
 
 router.post('/player/cricket/addmatch',auth,(req,res)=>{
     console.log("Add cricket Match");

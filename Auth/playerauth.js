@@ -10,6 +10,8 @@ const auth = (req,res,next)=>{
         .then((v)=>{
         req.id = mk._id;
         req.email = v.email;
+        req.name = v.name;
+        req.studentid = v.studentid; 
         req.token = token;
         next();
         })

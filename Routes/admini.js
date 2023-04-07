@@ -2,6 +2,7 @@ const admin = require('../model/admin');
 const player = require('../model/player');
 const express = require('express');
 const cors = require('cors');
+const sg = require('@sendgrid/mail')
 const dotenv = require('dotenv');
 dotenv.config();
 const jwt = require('jsonwebtoken');
@@ -71,9 +72,10 @@ router.post('/admin/setplayer',auth,(req,res)=>{
         name:req.body.name,
         email:req.body.email,
         password:req.body.password,
+        studentid:req.body.studentid,
         gender:req.body.gender,
         height:req.body.height,
-        weight:req.body.weight,
+        weight:req.body.weight
     }
     )
     player.findOne({email:req.body.email}).then((v)=>{
@@ -82,21 +84,27 @@ router.post('/admin/setplayer',auth,(req,res)=>{
         else
         np.save()
         .then((nv)=>{
+            
+            sg.setApiKey(process.env.APIKEY)
+
+            sg.send({
+                from: 'rshah213203@gmail.com',
+                to:  nv.email,
+                subject: 'Welcome to Viceroy Of Victory',
+                text: `name: ${nv.name} 
+email: ${nv.email}  
+password: ${nv.password}`
+            }).then((ev)=>{
+                console.log("email sended",ev)
+            })
         return res.send({"player": nv})
     })
     .catch((err)=>{
+        console.log(err)
         return res.status(400).send({"error":"Player set failed"});
     })
     })
     
 })
-router.get('/admin/playerlist',auth,(req,res)=>{
-    player.find()
-    .then((v)=>{
-        res.send(v);
-    })
-    .catch((err)=>{
-        res.status(400).send({"error":"Something went wrong!"});
-    })
-})
+
 module.exports = router;

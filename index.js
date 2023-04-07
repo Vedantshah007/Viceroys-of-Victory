@@ -9,6 +9,8 @@ const admin = require('./model/admin');
 const player = require('./model/player');
 const addi = require('./Routes/admini');
 const playeri = require('./Routes/playeri')
+const playeric = require('./Routes/playeric')
+const playerib = require('./Routes/playerib')
 const views = require('./Routes/view')
 const { default: mongoose } = require('mongoose');
 const fire = require('./Db/mongoose');
@@ -25,6 +27,8 @@ app.use((req,res,next)=>{
     else
     next();
 })
+app.use(playerib);
+app.use(playeric);
 app.use(playeri);
 app.use(addi);
 app.use(views);
