@@ -50,6 +50,21 @@ const player = mongoose.model('player',{
         type: Number,
         required: true
     },
+    cricket:{
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    badminton:{
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    football:{
+        type: Boolean,
+        required: true,
+        default: false
+    },
     tokens:[
         {
            token:{
