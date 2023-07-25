@@ -2,6 +2,8 @@
 # Viceroys of Victories 
 # (Athlete Management System)
 
+It is the management system for all the players to store their credentials and details regarding the matches they played along with the stats.So, it provides as a perfect platform to manage their stats and keep track of all their performances.
+
 
 
 ## API Documentation
