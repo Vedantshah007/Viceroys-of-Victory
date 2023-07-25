@@ -13,5 +13,5 @@ It is the management system for all the players to store their credentials and d
 
 ## Tech Stack
 
-**Server:**  Node, Express, MongoDB
+**Server:**  NodeJS, ExpressJS, MongoDB
 
