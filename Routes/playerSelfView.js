@@ -11,55 +11,11 @@ const fprofile = require('../model/Football/fprofile');
 const cprofile = require('../model/Cricket/profile');
 const tprofile = require('../model/Table tennis/profile');
 const bprofile = require('../model/Badminton/profile');
-const auth = require('../Auth/adminauth')
+const auth = require('../Auth/playerauth')
 router.use(cors());
-router.get('/search/players/:squery',auth,async (req,res)=>{
-    console.log("search player containing ",req.params.squery);
-    try {
-        let players = await player.find({name: {$regex: req.params.squery, $options: 'i'}},'name email');
-        if(players){
-        res.status(200).send(players);
-        }
-        else
-        res.status(400).send({"error":"No players found"})
-        
-    } catch (error) {
-        console.log(error)
-        res.status(400).send({"error":"Something went wrong"})
-    }
-})
-router.get('/search/players/',auth,async (req,res)=>{
-    try {
-        let players = await player.find({},'name email');
-        if(players){
-        res.status(200).send(players);
-        }
-        else
-        res.status(400).send({"error":"No players found"})
-        
-    } catch (error) {
-        console.log(error)
-        res.status(400).send({"error":"Something went wrong"})
-    }
-})
 
-router.get('/view/players',auth,async (req,res)=>{
-    try {
-        let players = await player.find({},'name email');
-        if(players){
-        res.status(200).send(players);
-        }
-        else
-        res.status(400).send({"error":"No players found"})
-        
-    } catch (error) {
-        console.log(error)
-        res.status(400).send({"error":"Something went wrong"})
-    }
-})
-
-router.get('/view/players/:uid',auth, (req,res)=>{
-    let uid = req.params.uid;
+router.get('/self/players/detail',auth,(req,res)=>{
+    let uid = req.id;
     player.findById(uid,'name email gender height weight cricket badminton football')
     .then(async(v)=>{
         var f = {"goal":0}; 
@@ -91,9 +47,8 @@ router.get('/view/players/:uid',auth, (req,res)=>{
             if(tpf){
                 t.mw = tpf.mw;}
         }); 
-        res.send([v,f,c,b,t]);
+        return res.send([v,f,c,b,t]);
         }
-        else
         res.status(400).send({"error":"Player fetch failed"});
     })
     .catch((err)=>{
@@ -102,8 +57,8 @@ router.get('/view/players/:uid',auth, (req,res)=>{
 
 })
 
-router.get('/view/players/badminton/:uid',auth,(req,res)=>{
-    let uid = req.params.uid;
+router.get('/self/players/badminton/',auth,(req,res)=>{
+    let uid = req.id;
     bmatch.find({pid:uid},'tot s1 s2 oname wt')
     .then((v)=>{
         console.log(v)
@@ -118,8 +73,8 @@ router.get('/view/players/badminton/:uid',auth,(req,res)=>{
 
 })
 
-router.get('/view/players/tt/:uid',auth,(req,res)=>{
-    let uid = req.params.uid;
+router.get('/self/players/tt',auth,(req,res)=>{
+    let uid = req.id;
     tmatch.find({pid:uid},'tot s1 s2 oname wt')
     .then((v)=>{
         console.log(v)
@@ -134,8 +89,8 @@ router.get('/view/players/tt/:uid',auth,(req,res)=>{
 
 })
 
-router.get('/view/players/football/:uid',auth,(req,res)=>{
-    let uid = req.params.uid;
+router.get('/self/players/football',auth,(req,res)=>{
+    let uid = req.id;
     fmatch.find({pid:uid},'tot t1 t2 s1 s2 wt goal')
     .then((v)=>{
         if(v)
@@ -149,8 +104,8 @@ router.get('/view/players/football/:uid',auth,(req,res)=>{
 
 })
 
-router.get('/view/players/cricket/:uid',auth,(req,res)=>{
-    let uid = req.params.uid;
+router.get('/self/players/cricket',auth,(req,res)=>{
+    let uid = req.id;
     cmatch.find({pid:uid},'tot t1 t2 s1 s2 wt run wicket')
     .then((v)=>{
         if(v)

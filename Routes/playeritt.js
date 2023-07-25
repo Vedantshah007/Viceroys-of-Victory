@@ -1,10 +1,10 @@
 const express = require('express')
 const router = new express.Router();
 const player = require('../model/player');
-const sg = require('@sendgrid/mail')
 const admin = require('../model/admin');
-const bmatch = require('../model/Badminton/match');
-const bprofile = require('../model/Badminton/profile');
+const sg = require('@sendgrid/mail')
+const tmatch = require('../model/Table tennis/match');
+const tprofile = require('../model/Table tennis/profile')
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const auth = require('../Auth/playerauth')
@@ -13,8 +13,8 @@ router.use(cors());
 dotenv.config();
 
 
-router.post('/player/badminton/addmatch',auth,(req,res)=>{
-    console.log("Add badminton Match");
+router.post('/player/tt/addmatch',auth,(req,res)=>{
+    console.log("Add tt Match");
     if(req.body.oid==req.studentid)
     return res.status(400).send({"error":"Invalid Opponent id"})
     let match = {
@@ -29,9 +29,10 @@ router.post('/player/badminton/addmatch',auth,(req,res)=>{
     player.findOne({studentid: req.body.oid})
     .then((eo)=>{
         if(eo){
-        match = new bmatch(match);
+        match = new tmatch(match);
         match.save()
         .then((v)=>{
+           
             let omatch = {
                 tot: req.body.tot,
                 pid: eo._id,
@@ -41,7 +42,7 @@ router.post('/player/badminton/addmatch',auth,(req,res)=>{
                 s2: req.body.s1,
                 wt: !req.body.wt,
             }
-            omatch = new bmatch(omatch);
+            omatch = new tmatch(omatch);
             omatch.save()
             .then(async (os)=>{
                 if(os){
@@ -50,44 +51,42 @@ router.post('/player/badminton/addmatch',auth,(req,res)=>{
                     sg.send({
                         from: 'rshah213203@gmail.com',
                         to: '202151169@iiitvadodara.ac.in' ,
-                        subject: 'Badminton Match added',
+                        subject: 'TT Match added',
                         text: `${os}`
                     })
-
-                        await player.findByIdAndUpdate(req.id,{badminton:true})
+                        await player.findByIdAndUpdate(req.id,{tt:true})
                         .then((nvv)=>{
                             console.log("updated",nvv)
                         })
-                        await player.findByIdAndUpdate(eo._id,{badminton:true})
+                        await player.findByIdAndUpdate(eo._id,{tt:true})
                         .then((nvv)=>{
                             console.log("updated",nvv)
                         })
                         let wid = (v.wt)?req.id:eo.id;
-                        await bprofile.findOne({pid: wid})
+                        await tprofile.findOne({pid: wid})
                         .then(async (bpf)=>{
                             if(bpf) {
-                                await bprofile.findOneAndUpdate({pid:wid},{mw: bpf.mw+1});
+                                await tprofile.findOneAndUpdate({pid:wid},{mw: bpf.mw+1});
                             }
                             else{
                                 let nbp = {pid:wid , mw:1};
-                                nbp = new bprofile(nbp);
+                                nbp = new tprofile(nbp);
                                 await nbp.save();
                             }
                         })
-                       
-                res.status(200).send({"message":"BMatch Set"});
+                res.status(200).send({"message":"tmatch Set"});
                 }
                 else
-                res.status(400).send({"error":"BMatch set failed"})
+                res.status(400).send({"error":"tmatch set failed"})
             })
             .catch((err)=>{
                 console.log(err);
-                res.send({"error":"BMatch set failed"})
+                res.send({"error":"tmatch set failed"})
             })
             
         })
         .catch((err)=>{
-            res.send({"error":"BMatch set failed"})
+            res.send({"error":"tmatch set failed"})
         })
 }
 else

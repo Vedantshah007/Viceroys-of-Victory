@@ -65,6 +65,11 @@ const player = mongoose.model('player',{
         required: true,
         default: false
     },
+    tt:{
+        type: Boolean,
+        required: true,
+        default: false
+    },
     tokens:[
         {
            token:{

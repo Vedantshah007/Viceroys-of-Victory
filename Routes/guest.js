@@ -11,9 +11,8 @@ const fprofile = require('../model/Football/fprofile');
 const cprofile = require('../model/Cricket/profile');
 const tprofile = require('../model/Table tennis/profile');
 const bprofile = require('../model/Badminton/profile');
-const auth = require('../Auth/adminauth')
 router.use(cors());
-router.get('/search/players/:squery',auth,async (req,res)=>{
+router.get('/guest/search/players/:squery',async (req,res)=>{
     console.log("search player containing ",req.params.squery);
     try {
         let players = await player.find({name: {$regex: req.params.squery, $options: 'i'}},'name email');
@@ -28,7 +27,43 @@ router.get('/search/players/:squery',auth,async (req,res)=>{
         res.status(400).send({"error":"Something went wrong"})
     }
 })
-router.get('/search/players/',auth,async (req,res)=>{
+router.get('/guest/view/players/cricket',(req,res)=>{
+    player.find({cricket:true},'name email')
+    .then((v)=>{
+        return res.status(200).send(v);
+    })
+    .catch((err)=>{
+        return res.status(400).send({"message":"Fetch Failed!"});
+    })
+})
+router.get('/guest/view/players/badminton',(req,res)=>{
+    player.find({badminton:true},'name email')
+    .then((v)=>{
+        return res.status(200).send(v);
+    })
+    .catch((err)=>{
+        return res.status(400).send({"message":"Fetch Failed!"});
+    })
+})
+router.get('/guest/view/players/football',(req,res)=>{
+    player.find({football:true},'name email')
+    .then((v)=>{
+        return res.status(200).send(v);
+    })
+    .catch((err)=>{
+        return res.status(400).send({"message":"Fetch Failed!"});
+    })
+})
+router.get('/guest/view/players/tt',(req,res)=>{
+    player.find({tt:true},'name email')
+    .then((v)=>{
+        return res.status(200).send(v);
+    })
+    .catch((err)=>{
+        return res.status(400).send({"message":"Fetch Failed!"});
+    })
+})
+router.get('/guest/search/players/',async (req,res)=>{
     try {
         let players = await player.find({},'name email');
         if(players){
@@ -43,7 +78,7 @@ router.get('/search/players/',auth,async (req,res)=>{
     }
 })
 
-router.get('/view/players',auth,async (req,res)=>{
+router.get('/guest/view/players',async (req,res)=>{
     try {
         let players = await player.find({},'name email');
         if(players){
@@ -58,7 +93,7 @@ router.get('/view/players',auth,async (req,res)=>{
     }
 })
 
-router.get('/view/players/:uid',auth, (req,res)=>{
+router.get('/guest/view/players/:uid', (req,res)=>{
     let uid = req.params.uid;
     player.findById(uid,'name email gender height weight cricket badminton football')
     .then(async(v)=>{
@@ -102,7 +137,7 @@ router.get('/view/players/:uid',auth, (req,res)=>{
 
 })
 
-router.get('/view/players/badminton/:uid',auth,(req,res)=>{
+router.get('/guest/view/players/badminton/:uid',(req,res)=>{
     let uid = req.params.uid;
     bmatch.find({pid:uid},'tot s1 s2 oname wt')
     .then((v)=>{
@@ -118,7 +153,7 @@ router.get('/view/players/badminton/:uid',auth,(req,res)=>{
 
 })
 
-router.get('/view/players/tt/:uid',auth,(req,res)=>{
+router.get('/guest/view/players/tt/:uid',(req,res)=>{
     let uid = req.params.uid;
     tmatch.find({pid:uid},'tot s1 s2 oname wt')
     .then((v)=>{
@@ -134,7 +169,7 @@ router.get('/view/players/tt/:uid',auth,(req,res)=>{
 
 })
 
-router.get('/view/players/football/:uid',auth,(req,res)=>{
+router.get('/guest/view/players/football/:uid',(req,res)=>{
     let uid = req.params.uid;
     fmatch.find({pid:uid},'tot t1 t2 s1 s2 wt goal')
     .then((v)=>{
@@ -149,7 +184,7 @@ router.get('/view/players/football/:uid',auth,(req,res)=>{
 
 })
 
-router.get('/view/players/cricket/:uid',auth,(req,res)=>{
+router.get('/guest/view/players/cricket/:uid',(req,res)=>{
     let uid = req.params.uid;
     cmatch.find({pid:uid},'tot t1 t2 s1 s2 wt run wicket')
     .then((v)=>{
@@ -163,5 +198,100 @@ router.get('/view/players/cricket/:uid',auth,(req,res)=>{
     })
 
 })
+
+router.get('/guest/all/football',(req,res)=>{
+    fmatch.find({})
+    .then((fbm)=>{
+        res.send(fbm);
+    })
+    .catch((err)=>{
+        res.status(400).send({"message":"fetch failed"});
+    })
+})
+
+router.get('/guest/all/cricket',(req,res)=>{
+    cmatch.find({})
+    .then((cbm)=>{
+        res.send(cbm);
+    })
+    .catch((err)=>{
+        res.status(400).send({"message":"fetch failed"});
+    })
+})
+router.get('/guest/all/badminton',(req,res)=>{
+    bmatch.find({})
+    .then((bbm)=>{
+        const odm = getObjectAtOddIndex(bbm);
+        let resjson = [];
+        odm.forEach(function (arrayItem,index) {
+            player.findById(odm[index].pid)
+            .then((ans)=>{
+               
+               let nobj = {
+                    tot: arrayItem.tot,
+                    pid: ans.name,
+                    oname: arrayItem.oname,
+                    oid: arrayItem.oid,
+                    s1: arrayItem.s1,
+                    s2: arrayItem.s2,
+                    wt: arrayItem.wt
+               }
+               resjson.push(nobj);
+               if(index===odm.length-1){
+
+                return res.send(resjson);
+                }
+            })
+            
+        });
+        
+    })
+    .catch((err)=>{
+        res.status(400).send({"message":"fetch failed"});
+    })
+})
+
+router.get('/guest/all/tt',(req,res)=>{
+    tmatch.find({})
+    .then((tbm)=>{
+        const odm = getObjectAtOddIndex(tbm);
+        let resjson = [];
+        odm.forEach(function (arrayItem,index) {
+            player.findById(odm[index].pid)
+            .then((ans)=>{
+               
+               let nobj = {
+                    tot: arrayItem.tot,
+                    pid: ans.name,
+                    oname: arrayItem.oname,
+                    oid: arrayItem.oid,
+                    s1: arrayItem.s1,
+                    s2: arrayItem.s2,
+                    wt: arrayItem.wt
+               }
+               resjson.push(nobj);
+               if(index===odm.length-1){
+                return res.send(resjson);
+                }
+            })
+            
+        });
+        
+    })
+    .catch((err)=>{
+        res.status(400).send({"message":"fetch failed"});
+    })
+})
+
+function getObjectAtOddIndex(arr) {
+    const result = [];
+    for (let i = 1; i < arr.length; i += 2) {
+      result.push(arr[i]);
+    }
+    return result;
+  }
+  
+
+
 
 module.exports = router;
